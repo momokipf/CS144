@@ -53,6 +53,7 @@ public class MyParser {
     private static HashMap<String,Item> itemidmap = new HashMap<String,Item>();
     private static HashMap<String,User> useridmap = new HashMap<String,User>(); 
         
+    private static int prev = 0;
     private static int category_4 = 0;
 
     static class MyErrorHandler implements ErrorHandler {
@@ -399,7 +400,7 @@ public class MyParser {
         System.out.println(Integer.toString(itemidmap.size())+" Items have been recorded");
         System.out.println(Integer.toString(useridmap.size())+" Users have been recorded");
 
-        System.out.println(Integer.toString(category_4)+" itemidwith4cat found");
+        //System.out.println(Integer.toString(category_4)+" itemidwith4cat found");
     	return true;
     }
 
@@ -459,6 +460,8 @@ public class MyParser {
         for (int i = 0; i < args.length - 1; i++) {
             File currentFile = new File(args[i]);
             processFile(currentFile);
+            //System.out.println("File "+args[i]+':'+ Integer.toString(category_4 - prev));
+            //prev = category_4;
         }
         converttoCvs();
     }
