@@ -10,8 +10,9 @@ select ItemID from temper where Currently=(select max(Currently) from temper);
 
 drop view temper; 
 
-select count(*) from User where Sellrate>=1000;
+select count(*) from User where Sellrate>1000;
 
-select count(*) from User where Sellrate!=0 and Buyrate!=0; 
+select count(*) from User where Sellrate!=-3 and Buyrate!=-3; 
+
 
 select count(*) from (select * from (select * from (select i.ItemID,c.category from Items i join Categorys c on i.ItemID=c.ItemID where i.Number_of_Bids>0 and i.Currently>100) as T1) as T2  group by category) as T3;

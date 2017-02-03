@@ -53,6 +53,7 @@ public class MyParser {
     private static HashMap<String,Item> itemidmap = new HashMap<String,Item>();
     private static HashMap<String,User> useridmap = new HashMap<String,User>(); 
         
+    private static int category_4 = 0;
 
     static class MyErrorHandler implements ErrorHandler {
         
@@ -192,8 +193,7 @@ public class MyParser {
 
     	//System.out.println("enter"+ nname);
     	if(nname=="Item"){
-    		Item item = new Item();
-    		setItemelement_attr(item,(Element)n);
+    		setItemelement_attr((Element)n);
     		return;
     	}
 		// dump out attributes if any
@@ -209,27 +209,34 @@ public class MyParser {
             getItem(nlist.item(i), level+1);
     }
     
-    private static boolean setItemelement_attr(Item it,Element e){
+    private static boolean setItemelement_attr(Element e){
     	if(e==null)
     		return false;
+        String itemid = null;
+        Item it = null;
     	org.w3c.dom.NamedNodeMap nattrib = e.getAttributes();
     	if(nattrib!=null&&nattrib.getLength()>0){
     		for(int i=0; i<nattrib.getLength();++i){
     			if(nattrib.item(i).getNodeName().equals("ItemID")){
-    				it.itemid = nattrib.item(i).getNodeValue();
-    				if(itemidmap.containsKey(it.itemid)){
-    					it = null;
-    					return false;
-    				}
+    				itemid = nattrib.item(i).getNodeValue();
     			}
     			//System.out.println(it.itemid);
     		}
+            if(itemidmap.containsKey(itemid)){
+                it = null;
+                System.out.println("duplicate itemid,possible duplicate item on: "+itemid);
+                return false;
+            }
+            else 
+                it = new Item();
+                it.itemid = itemid;
     	}
     	it.name = getElementTextByTagNameNR(e,"Name");
     	Element[] es = getElementsByTagNameNR(e,"Category");
+        if(es.length==4)
+            category_4++;
     	for(Element cat:es){
     		it.category.add(getElementText(cat));
-    		//System.out.print(getElementText(cat)+" ");
     	}
     	Element bids = getElementByTagNameNR(e,"Bids");
     	if(bids!=null){
@@ -297,6 +304,9 @@ public class MyParser {
     			}
     			if(nattrib.item(i).getNodeName().equals("Rating")){
     				rating= nattrib.item(i).getNodeValue();
+
+                    // if(Integer.parseInt(rating)==-2)
+                    //     System.out.println("this rate is -2" + rating);
     			}
     		}
     		if(userid!=null){
@@ -342,6 +352,7 @@ public class MyParser {
 
     public static boolean converttoCvs(){
 
+
     	ArrayList<FileWriter> tablewriter = new ArrayList<FileWriter>();
 
     	try{
@@ -354,6 +365,9 @@ public class MyParser {
 			while(it.hasNext()){
 				String itemid = it.next();
 				Item item = itemidmap.get(itemid);
+
+
+
 				CSVUtils.writeLine(tablewriter.get(0), Item.item_strlist(item));
 				for(String cat:item.category){
 					CSVUtils.writeLine(tablewriter.get(1), Arrays.asList(itemid,cat));
@@ -385,6 +399,7 @@ public class MyParser {
         System.out.println(Integer.toString(itemidmap.size())+" Items have been recorded");
         System.out.println(Integer.toString(useridmap.size())+" Users have been recorded");
 
+        System.out.println(Integer.toString(category_4)+" itemidwith4cat found");
     	return true;
     }
 

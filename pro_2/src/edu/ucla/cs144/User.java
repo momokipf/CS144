@@ -7,8 +7,8 @@ import java.util.*;
 
 public class User{
 	public String userid = null;
-	public int sellrate = 0;
-	public int buyrate = 0;
+	public int sellrate = -3;
+	public int buyrate = -3;
 	public String location = null;
 	public String country=null;
 
@@ -31,8 +31,10 @@ public class User{
 	public static  List<String> user_strlist(User u){
 		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(u.userid);
-		ret.add((u.sellrate==0)?"NULL":Integer.toString(u.sellrate));
-		ret.add((u.buyrate==0)?"NULL":Integer.toString(u.buyrate));
+		// ret.add((u.sellrate==0)?"-1":Integer.toString(u.sellrate));
+		// ret.add((u.buyrate==0)?"-1":Integer.toString(u.buyrate));
+		ret.add(Integer.toString(u.sellrate));
+		ret.add(Integer.toString(u.buyrate));
 		ret.add(u.location);
 		ret.add(u.country);
 		return ret;
