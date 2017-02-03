@@ -90,14 +90,26 @@ public class Item {
 		bids.add(b);
 	}
 
+	public static String parseDate(String time){
+
+		try{
+		Date parsed = xmlformat.parse(time);
+		time = sqlformat.format(parsed);
+		}
+		catch(ParseException e){
+				System.out.println("ERROR: Cannot parse \"" + time + "\"");
+			}
+		return time;
+	}
+
 	public static List<String> item_strlist(Item i)
 	{
 		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(i.itemid);
 		ret.add(i.name);
-		ret.add(i.currently);
-		ret.add(i.buy_price);
-		ret.add(i.first_bid);
+		ret.add((i.currently==null)?"0":i.currently);
+		ret.add((i.buy_price==null)?"0":i.buy_price);
+		ret.add((i.first_bid==null)?"0":i.first_bid);
 		ret.add(Integer.toString(i.number_of_Bids));
 		if(i.loc!=null){
 			ret.add((i.loc.content==null)?"NULL":i.loc.content);

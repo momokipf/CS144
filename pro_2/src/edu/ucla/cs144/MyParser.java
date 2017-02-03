@@ -25,6 +25,8 @@ public class MyParser {
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
 
+    static String outBasedir = null;
+
     static final String[] typeName = {
 	"none",
 	"Element",
@@ -50,7 +52,7 @@ public class MyParser {
 
     private static HashMap<String,Item> itemidmap = new HashMap<String,Item>();
     private static HashMap<String,User> useridmap = new HashMap<String,User>(); 
-    
+        
 
     static class MyErrorHandler implements ErrorHandler {
         
@@ -244,8 +246,8 @@ public class MyParser {
     	it.buy_price = strip(getElementTextByTagNameNR(e,"First_Bid"));
     	it.number_of_Bids = Integer.parseInt(getElementTextByTagNameNR(e,"Number_of_Bids"));
     	it.country = getElementTextByTagNameNR(e,"Country");
-    	it.started = getElementTextByTagNameNR(e,"Started");
-    	it.ends = getElementTextByTagNameNR(e,"Ends");
+    	it.started = Item.parseDate(getElementTextByTagNameNR(e,"Started"));
+    	it.ends = Item.parseDate(getElementTextByTagNameNR(e,"Ends"));
     	it.description = getElementTextByTagNameNR(e,"Description");
     	Element loc = getElementByTagNameNR(e,"Location");
     	setLocationelement_attr(it,loc);
@@ -345,7 +347,7 @@ public class MyParser {
     	try{
 
     		for(int i=0;i<outputTable.length;++i){
-	    		FileWriter writer = new FileWriter(outputTable[i],true);
+	    		FileWriter writer = new FileWriter(outBasedir+outputTable[i],true);
 	    		tablewriter.add(writer);
 	    	}
 			Iterator<String> it = itemidmap.keySet().iterator();
@@ -418,6 +420,7 @@ public class MyParser {
             System.exit(1);
         }
         
+
         /* Initialize parser. */
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -434,9 +437,11 @@ public class MyParser {
             System.out.println("parser was unable to be configured");
             System.exit(2);
         }
-        
+        outBasedir = args[args.length-1]+"/";
+
+        System.out.println("Output base dir: "+ outBasedir);
         /* Process all files listed on command line. */
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length - 1; i++) {
             File currentFile = new File(args[i]);
             processFile(currentFile);
         }

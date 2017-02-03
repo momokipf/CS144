@@ -1,7 +1,7 @@
-drop table Categorys;
+drop table IF EXISTS Categorys;
 
-drop table Bider;
+drop table IF EXISTS Bider;
 
-drop table User;
+drop table IF EXISTS User;
 
-drop table Items;
+drop table IF EXISTS Items;
