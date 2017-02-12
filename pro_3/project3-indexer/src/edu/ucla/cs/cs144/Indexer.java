@@ -24,7 +24,7 @@ import org.apache.lucene.util.Version;
 
 public class Indexer {
 
-    private final String str_getitem = "SELECT ItemID,Name,Location_content,Country,Description FROM Items" ;
+    private final String str_getitem = "SELECT i.ItemID,Name,Category,Description FROM Items i join Categorys c on i.ItemID=c.ItemID" ;
 
 
     
@@ -37,7 +37,7 @@ public class Indexer {
     
     private IndexWriter getIndexWriter(boolean create) throws IOException {
         if (indexWriter == null) {
-            Directory indexDir = FSDirectory.open(new File("index"));
+            Directory indexDir = FSDirectory.open(new File(Lindex_path.lucene_path));
             IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, new StandardAnalyzer());
             indexWriter = new IndexWriter(indexDir, config);
         }
@@ -50,16 +50,16 @@ public class Indexer {
         Connection conn = null;
 
         // create a connection to the database to retrieve Items from MySQL
-	try {
-	    conn = DbManager.getConnection(true);
-	} catch (SQLException ex) {
-	    System.out.println(ex);
-	}
+    try {
+        conn = DbManager.getConnection(true);
+    } catch (SQLException ex) {
+        System.out.println(ex);
+    }
 
 
-	/*
-	 * Add your code here to retrieve Items using the connection
-	 * and add corresponding entries to your Lucene inverted indexes.
+    /*
+     * Add your code here to retrieve Items using the connection
+     * and add corresponding entries to your Lucene inverted indexes.
          *
          * You will have to use JDBC API to retrieve MySQL data from Java.
          * Read our tutorial on JDBC if you do not know how to use JDBC.
@@ -73,34 +73,47 @@ public class Indexer {
          * If you create new classes, make sure that
          * the classes become part of "edu.ucla.cs.cs144" package
          * and place your class source files at src/edu/ucla/cs/cs144/.
-	 * 
-	 */
+     * 
+     */
 
     try{
         Statement s = conn.createStatement();
 
         ResultSet rs;
+        int count = 0;
 
         rs = s.executeQuery(str_getitem);
-        while(rs.next()){
-            Item_text item_t = new Item_text(rs.getString("ItemID"),rs.getString("Name"),rs.getString("Location_content"),
-                rs.getString("Country"),rs.getString("Description"));
+        while(!rs.isAfterLast()){
+            if(rs.isBeforeFirst())
+                rs.next();
+            String id = rs.getString("ItemID");
+            Item_text item_t = new Item_text(id,rs.getString("Name"),rs.getString("Description"));
+            while(rs.next()&&id.equals(rs.getString("ItemID"))){
+                item_t.addCategory(rs.getString("Category"));  
+                //System.out.println(id+ ' '+rs.getString("Category")); 
+            }
+            //System.out.println(id+ ' '+item_t.getCategorys());
             IndexItem_text(item_t);
+            //System.out.println("Item id:" + id + " added");
+            count++;
         }
 
 
         rs.close();
         s.close();
+        System.out.println(count + "s Item has been add to lucene index");
+        IndexWriter writer = getIndexWriter(false);
+        writer.close();
     }catch(Exception ex){
         System.out.println(ex);
     }
 
         // close the database connection
-	try {
-	    conn.close();
-	} catch (SQLException ex) {
-	    System.out.println(ex);
-	}
+    try {
+        conn.close();
+    } catch (SQLException ex) {
+        System.out.println(ex);
+    }
     }    
 
 
@@ -109,14 +122,17 @@ public class Indexer {
 
     public void IndexItem_text(Item_text item_t)
         throws IOException{
-        System.out.println("Indexing item: " +  item_t);
+        //System.out.println("Indexing item: " +  item_t);
         IndexWriter writer = getIndexWriter(false);
         Document doc = new Document();
-        doc.add(new StringField("Itemid",item_t.getItem_id(),Field.Store.YES));
-        doc.add(new StringField("Name",item_t.getName(),Field.Store.YES));
-        doc.add(new StringField("Location",item_t.getLocation(),Field.Store.YES));
-
-        doc.add(new StringField("Description",item_t.getDescription(),Field.Store.YES));
+        doc.add(new StringField("ItemID",item_t.getItem_id(),Field.Store.YES));
+        doc.add(new TextField("Name",item_t.getName(),Field.Store.YES));
+        // doc.add(new StringField("Location",item_t.getLocation(),Field.Store.NO));
+        // doc.add(new StringField("Country",item_t.getCountry(),Field.Store.NO));
+        doc.add(new TextField("Category",item_t.getCategorys(),Field.Store.NO));
+        //System.out.println(item_t.getCategorys());
+        doc.add(new TextField("Description",item_t.getDescription(),Field.Store.NO));
+        doc.add(new TextField("Content",item_t.getName()+' '+item_t.getCategorys()+' '+item_t.getDescription(),Field.Store.NO));
 
         writer.addDocument(doc);
     }
