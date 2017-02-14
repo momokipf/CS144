@@ -179,7 +179,8 @@ public class MyParser {
         /* Fill in code here (you will probably need to write auxiliary
             methods). */
         
-        
+
+
         /**************************************************************/
         
         //recursiveDescent(doc, 0);
@@ -198,10 +199,10 @@ public class MyParser {
     		return;
     	}
 		// dump out attributes if any
-        org.w3c.dom.NamedNodeMap nattrib = n.getAttributes();
-        if(nattrib != null && nattrib.getLength() > 0)
-            for(int i=0; i<nattrib.getLength(); i++)
-                getItem(nattrib.item(i),  level+1);
+        // org.w3c.dom.NamedNodeMap nattrib = n.getAttributes();
+        // if(nattrib != null && nattrib.getLength() > 0)
+        //     for(int i=0; i<nattrib.getLength(); i++)
+        //         getItem(nattrib.item(i),  level+1);
         
         // now walk through its children list
         org.w3c.dom.NodeList nlist = n.getChildNodes();
@@ -224,7 +225,7 @@ public class MyParser {
     			//System.out.println(it.itemid);
     		}
             if(itemidmap.containsKey(itemid)){
-                it = null;
+                it = itemidmap.get(itemid);
                 System.out.println("duplicate itemid,possible duplicate item on: "+itemid);
                 return false;
             }
