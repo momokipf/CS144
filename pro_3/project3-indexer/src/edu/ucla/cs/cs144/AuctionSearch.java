@@ -77,7 +77,7 @@ public class AuctionSearch implements IAuctionSearch {
 				try{
 					Query query_t = parser.parse(query);
 					TopDocs topdocs = searcher.search(query_t,numResultsToSkip+numResultsToReturn);
-					System.out.println("Results found (  )"+ ": " + topdocs.totalHits);
+					//System.out.println("Results found (  )"+ ": " + topdocs.totalHits);
 					ScoreDoc[] hits = topdocs.scoreDocs;
 
 					for(int j =0 ; j < hits.length;j++){
@@ -100,15 +100,108 @@ public class AuctionSearch implements IAuctionSearch {
 
 			System.out.println(e);
 		}
-		//return res.toArray(new SearchResult[res.size()]);
+		return res.toArray(new SearchResult[res.size()]);
 
-		return new SearchResult[0];
+		//return new SearchResult[0];
 	}
 
 	public SearchResult[] spatialSearch(String query, SearchRegion region,
 			int numResultsToSkip, int numResultsToReturn) {
 		// TODO: Your code here!
-		return new SearchResult[0];
+		ArrayList<SearchResult> ret = new ArrayList<SearchResult>();
+		HashSet<String> withinregion = spatialSearchINsql(region);
+		SearchResult[] tmp = basicSearch(query,0,numResultsToReturn);
+		int searched = 0 ;
+		while(ret.size()<numResultsToReturn && tmp.length!=0){
+			//ret.allAll(tmp);
+			for(SearchResult sr:tmp){
+				if(withinregion.contains(sr.getItemId())){
+					ret.add(sr);
+					if(ret.size()>=numResultsToReturn)
+						break;
+				}
+				//System.out.println("not qualified "+ sr.getItemId());
+			}
+			searched += numResultsToReturn;
+			tmp = basicSearch(query,searched,numResultsToReturn);
+			System.out.println("Now length:"+ret.size());
+		}
+
+
+
+
+		return ret.toArray(new SearchResult[ret.size()]);
+	}
+
+
+	private HashSet<String> spatialSearchINsql(SearchRegion region){
+		Connection conn = null;
+		HashSet<String> ret = new HashSet<String>();
+
+        // create a connection to the database to retrieve Items from MySQL
+	    try {
+	        conn = DbManager.getConnection(true);
+	    } catch (SQLException ex) {
+	        System.out.println(ex);
+	    }
+
+
+	    try{
+	    	Statement s = conn.createStatement();
+
+	    	ResultSet rs;
+
+	    	//SET @range='Polygon((33.774 -118.63,33.774 -117.38,34.201 -117.38,34.201 -118.63,33.774 -118.63))';
+	    	String setrange = "\'Polygon(("+
+	    					region.getLx()+' '+region.getLy()+','+
+	    					region.getLx()+' '+region.getRy()+','+
+	    					region.getRx()+' '+region.getRy()+','+
+	    					region.getRx()+' '+region.getLy()+','+
+	    					region.getLx()+' '+region.getLy()+
+	    					"))\'";
+
+
+	    	String query = "Select ItemID from Item_loc where MBRContains(GeomFromText("+setrange+"),g)";
+	    	System.out.println(query);
+			rs = s.executeQuery(query);
+			/*
+			while(!rs.isAfterLast()){
+            if(rs.isBeforeFirst())
+                rs.next();
+            String id = rs.getString("ItemID");
+            Item_text item_t = new Item_text(id,rs.getString("Name"),rs.getString("Description"));
+            while(rs.next()&&id.equals(rs.getString("ItemID"))){
+                item_t.addCategory(rs.getString("Category"));  
+                //System.out.println(id+ ' '+rs.getString("Category")); 
+            }
+            //System.out.println(id+ ' '+item_t.getCategorys());
+            IndexItem_text(item_t);
+            //System.out.println("Item id:" + id + " added");
+            count++;
+        	}
+			*/
+			while(rs.next()){
+				String itemId = rs.getString("ItemID");
+				//System.out.println(itemId);
+				ret.add(itemId);
+			}
+
+
+			rs.close();
+			s.close();
+
+	    }catch(Exception ex){
+	    	System.out.println(ex);
+	    }
+
+	       // close the database connection
+	    try {
+	        conn.close();
+	    } catch (SQLException ex) {
+	        System.out.println(ex);
+	    }   
+	    return ret;
+
 	}
 
 	public String getXMLDataForItemId(String itemId) {

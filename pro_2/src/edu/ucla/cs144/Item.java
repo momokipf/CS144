@@ -70,8 +70,12 @@ public class Item {
 			//System.out.println("new location: "+this.latitude+" "+this.longitude+this.content);
 		}
 
-		public String getlat_long(){
-			return latitude+':'+longitude;
+		public List<String> getlat_long(){
+			ArrayList<String> ret = new ArrayList<String>();
+			ret.add(latitude);
+			ret.add(longitude);
+
+			return ret;
 		}
 		public String toString()
 		{
@@ -113,9 +117,13 @@ public class Item {
 		ret.add(Integer.toString(i.number_of_Bids));
 		if(i.loc!=null){
 			ret.add((i.loc.content==null)?"NULL":i.loc.content);
-			ret.add(i.loc.getlat_long());
+			for(String locinfo:i.loc.getlat_long())
+			{
+				ret.add(locinfo);
+			}
 		}
 		else{
+			ret.add("NULL");
 			ret.add("NULL");
 			ret.add("NULL");
 		}

@@ -33,5 +33,9 @@
         <java classname="edu.ucla.cs.cs144.Indexer" failonerror="true" fork="yes">
             <classpath refid="classpath"/>
         </java>
+        <java classname="edu.ucla.cs.cs144.AuctionSearchTest" failonerror="true" fork="yes">
+            <classpath refid="classpath"/>
+        </java>
+        
     </target>
 </project>

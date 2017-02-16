@@ -2,7 +2,7 @@ select count(*) from User;
 
 select count(*) from Items where BINARY Location_content='New York';
 
-select count(*) from (select c.ItemID from Categorys c group by c.ItemID having count(c.category)=4) as T;
+select count(*) from (select count(*) as c from Categorys group by ItemID having count(c)=4) as T;
 
 create view temper(ItemID,Currently) as select ItemID,Currently from Items where Ends>"2001-12-20 00:00:01" and Number_of_Bids>0;
 
