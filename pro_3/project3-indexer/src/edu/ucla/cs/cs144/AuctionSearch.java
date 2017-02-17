@@ -54,24 +54,16 @@ public class AuctionSearch implements IAuctionSearch {
          * placed at src/edu/ucla/cs/cs144.
          *
          */
-	private static final Map<String,String> ESCAPMAP = createMap();
-
-	/*
-	' is replaced with &apos;
-	" is replaced with &quot;
-	& is replaced with &amp;
-	< is replaced with &lt;
-	> is replaced with &gt;
-	*/
-	private static Map<String,String> createMap(){
-		HashMap<String,String> tmp = new HashMap<String,String>();
-		tmp.put(",","&apos;");
-		tmp.put("\"","&quot;");
-		tmp.put("&","&amp;");
-		tmp.put("<","&lt");
-		tmp.put(">","&gt");
-		return Collections.unmodifiableMap(tmp);
-	}
+	//private static final Map<String,String> ESCAPMAP = createMap();
+	// private static Map<String,String> createMap(){
+	// 	HashMap<String,String> tmp = new HashMap<String,String>();
+	// 	tmp.put(",","&apos;");
+	// 	tmp.put("\"","&quot;");
+	// 	tmp.put("&","&amp;");
+	// 	tmp.put("<","&lt");
+	// 	tmp.put(">","&gt");
+	// 	return Collections.unmodifiableMap(tmp);
+	// }
 
 
 
@@ -82,7 +74,6 @@ public class AuctionSearch implements IAuctionSearch {
 
 		ArrayList<SearchResult> res = new ArrayList<SearchResult>(); 
 		HashSet<String> itemidset = new HashSet<String>();
-		//ArrayList<TopDocs> = new ArraList<TopDocs>;
 		//String[] fields = { "Name", "Category", "Description"}; 
 
 
@@ -126,6 +117,7 @@ public class AuctionSearch implements IAuctionSearch {
 			int numResultsToSkip, int numResultsToReturn) {
 		// TODO: Your code here!
 		ArrayList<SearchResult> ret = new ArrayList<SearchResult>();
+
 		HashSet<String> withinregion = spatialSearchINsql(region);
 		SearchResult[] tmp = basicSearch(query,0,numResultsToReturn);
 		int searched = 0 ;
@@ -207,40 +199,85 @@ public class AuctionSearch implements IAuctionSearch {
 
 	public String getXMLDataForItemId(String itemId) {
 		// TODO: Your code here!
-		// Connection conn = null;
-		// String ret = new StringBuilder();
-		// int height = 0;
-		// try{
-		// 	conn = DbManager.getConnection(true);
-		// 	Statement s = conn.createStatement();
-		// 	Results rs;
-		// 	String query = "Select * from Items where ItemID="+itemId;
-		// 	rs = s.executeQuery(query);
-		// 	if(rs.next()){
-		// 		ret.append('\t')
-		// 	}
+		Connection conn = null;
+		StringBuilder ret = new StringBuilder();
+		int height = 0;
+		try{
+			conn = DbManager.getConnection(true);
+			Statement s = conn.createStatement();
+			ResultSet rs;
+			String query = "Select * from Items where ItemID="+itemId;
+			rs = s.executeQuery(query);
+			if(rs.next()){
+				ret.append("<ItemID=\""+itemId+"\">\n");
+				ret.append("\t<Name>"+repwithEscape(rs.getString("Name"))+"/Name>\n");
+				for(String category:getcategory(conn,itemId)){
+					ret.append("\t<Category>"+repwithEscape(category)+"/Category\n");
+				}
+			}
 
 
 
 
+			rs.close();
+			s.close();
+			conn.close();
 
 
-		// }catch(SQLException ex){
-		// 	System.out.println("SQLException caught");
-  //           System.out.println("---");
-  //           while ( ex != null ){
-  //               System.out.println("Message   : " + ex.getMessage());
-  //               System.out.println("SQLState  : " + ex.getSQLState());
-  //               System.out.println("ErrorCode : " + ex.getErrorCode());
-  //               System.out.println("---");
-  //               ex = ex.getNextException();
-  //           }
-		// }
 
-		 return "";
+		}catch(SQLException ex){
+			System.out.println("SQLException caught");
+            System.out.println("---");
+            while ( ex != null ){
+                System.out.println("Message   : " + ex.getMessage());
+                System.out.println("SQLState  : " + ex.getSQLState());
+                System.out.println("ErrorCode : " + ex.getErrorCode());
+                System.out.println("---");
+                ex = ex.getNextException();
+            }
+		}
+
+		 return ret.toString();
 	}
 	
+	/*
+	' is replaced with &apos;
+	" is replaced with &quot;
+	& is replaced with &amp;
+	< is replaced with &lt;
+	> is replaced with &gt;
+	*/
+	private String repwithEscape(String str){
+		if(str.contains("'")){
+			str=str.replace("'","&apos;");
+		}
+		if(str.contains("\"")){
+			str=str.replace("\"","&quot;");
+		}
+		if(str.contains("&")){
+			str=str.replace("&","&amp;");
+		}
+		if(str.contains("<")){
+			str=str.replace("<","&lt;");
+		}
+		if(str.contains(">")){
+			str=str.replace(">","&gt");
+		}
+		return str;
+	}
 
+	private String[] getcategory(Connection conn,String itemId)
+	throws SQLException{
+		if(conn==null)
+			return new String[0];
+		ArrayList<String> ret = new ArrayList<String>();
+		Statement s = conn.createStatement();
+		ResultSet rs = s.executeQuery("Select Category from Categorys where ItemID="+itemId);
+		while(rs.next()){
+			ret.add(rs.getString("Category"));
+		}
+		return ret.toArray(new String[ret.size()]);
+	}
 
 
 	public String echo(String message) {
