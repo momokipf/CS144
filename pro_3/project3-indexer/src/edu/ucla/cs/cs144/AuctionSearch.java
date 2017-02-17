@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 import java.text.SimpleDateFormat;
 
 import java.sql.Connection;
@@ -51,11 +54,25 @@ public class AuctionSearch implements IAuctionSearch {
          * placed at src/edu/ucla/cs/cs144.
          *
          */
-	// private final String[] query_index = {
-	// 	"Name",
-	// 	"Category",
-	// 	"Description",
-	// };
+	private static final Map<String,String> ESCAPMAP = createMap();
+
+	/*
+	' is replaced with &apos;
+	" is replaced with &quot;
+	& is replaced with &amp;
+	< is replaced with &lt;
+	> is replaced with &gt;
+	*/
+	private static Map<String,String> createMap(){
+		HashMap<String,String> tmp = new HashMap<String,String>();
+		tmp.put(",","&apos;");
+		tmp.put("\"","&quot;");
+		tmp.put("&","&amp;");
+		tmp.put("<","&lt");
+		tmp.put(">","&gt");
+		return Collections.unmodifiableMap(tmp);
+	}
+
 
 
 	
@@ -164,22 +181,6 @@ public class AuctionSearch implements IAuctionSearch {
 	    	String query = "Select ItemID from Item_loc where MBRContains(GeomFromText("+setrange+"),g)";
 	    	System.out.println(query);
 			rs = s.executeQuery(query);
-			/*
-			while(!rs.isAfterLast()){
-            if(rs.isBeforeFirst())
-                rs.next();
-            String id = rs.getString("ItemID");
-            Item_text item_t = new Item_text(id,rs.getString("Name"),rs.getString("Description"));
-            while(rs.next()&&id.equals(rs.getString("ItemID"))){
-                item_t.addCategory(rs.getString("Category"));  
-                //System.out.println(id+ ' '+rs.getString("Category")); 
-            }
-            //System.out.println(id+ ' '+item_t.getCategorys());
-            IndexItem_text(item_t);
-            //System.out.println("Item id:" + id + " added");
-            count++;
-        	}
-			*/
 			while(rs.next()){
 				String itemId = rs.getString("ItemID");
 				//System.out.println(itemId);
@@ -206,9 +207,42 @@ public class AuctionSearch implements IAuctionSearch {
 
 	public String getXMLDataForItemId(String itemId) {
 		// TODO: Your code here!
-		return "";
+		// Connection conn = null;
+		// String ret = new StringBuilder();
+		// int height = 0;
+		// try{
+		// 	conn = DbManager.getConnection(true);
+		// 	Statement s = conn.createStatement();
+		// 	Results rs;
+		// 	String query = "Select * from Items where ItemID="+itemId;
+		// 	rs = s.executeQuery(query);
+		// 	if(rs.next()){
+		// 		ret.append('\t')
+		// 	}
+
+
+
+
+
+
+		// }catch(SQLException ex){
+		// 	System.out.println("SQLException caught");
+  //           System.out.println("---");
+  //           while ( ex != null ){
+  //               System.out.println("Message   : " + ex.getMessage());
+  //               System.out.println("SQLState  : " + ex.getSQLState());
+  //               System.out.println("ErrorCode : " + ex.getErrorCode());
+  //               System.out.println("---");
+  //               ex = ex.getNextException();
+  //           }
+		// }
+
+		 return "";
 	}
 	
+
+
+
 	public String echo(String message) {
 		return message;
 	}
