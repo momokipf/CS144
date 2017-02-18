@@ -263,7 +263,7 @@ public class MyParser {
     	it.description = getElementTextByTagNameNR(e,"Description");
     	Element loc = getElementByTagNameNR(e,"Location");
     	setLocationelement_attr(it,loc);
-        System.out.println(itemid+' '+getElementTextByTagNameNR(e,"Location"));
+        //System.out.println(itemid+' '+getElementTextByTagNameNR(e,"Location"));
         // if(itemid.equals("1044458000")){
         //     System.out.println("attention");
         // }

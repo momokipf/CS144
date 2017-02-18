@@ -211,7 +211,7 @@ public class AuctionSearch implements IAuctionSearch {
 			rs = s.executeQuery(query);
 			if(rs.next()){
 				ret.append("<ItemID=\""+itemId+"\">\n");
-				ret.append(printindent(height+1)+"<Name>"+repwithEscape(rs.getString("Name"))+"/Name>\n");
+				ret.append(printindent(height+1)+"<Name>"+repwithEscape(rs.getString("Name"))+"</Name>\n");
 				for(String category:getcategory(conn,itemId)){
 					ret.append(printindent(height+1)+"<Category>"+repwithEscape(category)+"</Category>\n");
 				}
@@ -227,13 +227,14 @@ public class AuctionSearch implements IAuctionSearch {
 					ret.append(printindent(height+1)+"</Bids>\n");
 				}
 				//Location_geo_lat Location_geo_long Location_content
-				if(1)
+				if(rs.getString("Location_geo_lat").length()!=0)
 					ret.append(printindent(height+1)+"<Location Latitude=\""+rs.getString("Location_geo_lat") +"\" Longitude=\""+rs.getString("Location_geo_long")+ "\">"+repwithEscape(rs.getString("Location_content"))+"</Location>\n");
 				else
-
+					ret.append(printindent(height+1)+"<Location>"+repwithEscape(rs.getString("Location_content"))+"</Location>\n");
 				ret.append(printindent(height+1)+"<Country>"+rs.getString("Country")+"</Country>\n");
 				ret.append(printindent(height+1)+"<Started>"+sqlparseDate(rs.getString("Started"))+"</Started>\n");
 				ret.append(printindent(height+1)+"<Ends>"+sqlparseDate(rs.getString("Ends"))+"</Ends>\n");
+				ret.append(getuser(conn,rs.getString("sellerid"),height+1,true));
 				ret.append(printindent(height+1)+"<Description>" + repwithEscape(rs.getString("Description")) + "</Description>\n");
 				ret.append(printindent(height)+"</Item>");
 			}

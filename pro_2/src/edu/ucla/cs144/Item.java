@@ -64,9 +64,9 @@ public class Item {
 
 		public Location(String latitude, String longitude,String content)
 		{
-			this.latitude = (latitude==null)?"NULL":latitude;
-			this.longitude = (longitude==null)?"NULL":longitude;
-			this.content = (content==null)?"NULL":content;
+			this.latitude = (latitude==null)?"":latitude;
+			this.longitude = (longitude==null)?"":longitude;
+			this.content = (content==null)?"":content;
 			//System.out.println("new location: "+this.latitude+" "+this.longitude+this.content);
 		}
 
@@ -87,7 +87,7 @@ public class Item {
 
 	public void addLocation(String latitude,String longitude,String c){
 		loc = new Location(latitude,longitude,c);
-		System.out.println(latitude+longitude+c);
+		//System.out.println(latitude+longitude+c);
 	}
 	
 	public void addbid(User u,String time,String amount){
@@ -112,7 +112,6 @@ public class Item {
 	{
 		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(i.itemid);
-		System.out.print(i.itemid+' ');
 		ret.add(i.name);
 		ret.add((i.currently==null)?"NULL":i.currently);
 		ret.add((i.buy_price==null)?"-1":i.buy_price);
@@ -120,16 +119,15 @@ public class Item {
 		ret.add(Integer.toString(i.number_of_Bids));
 		if(i.loc!=null){
 			ret.add((i.loc.content==null)?"NULL":i.loc.content);
-			System.out.println(i.loc.content+' ');
 			for(String locinfo:i.loc.getlat_long())
 			{
 				ret.add(locinfo);
 			}
 		}
 		else{
-			ret.add("NULL");
-			ret.add("NULL");
-			ret.add("NULL");
+			ret.add("");
+			ret.add("");
+			ret.add("");
 		}
 		ret.add(i.country);
 		ret.add(i.started);
