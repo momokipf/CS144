@@ -252,7 +252,10 @@ public class MyParser {
 
 
     	it.currently = strip(getElementTextByTagNameNR(e,"Currently"));
-    	it.buy_price = strip(getElementTextByTagNameNR(e,"First_Bid"));
+        if(getElementTextByTagNameNR(e,"Buy_Price")!=null){
+    	   it.buy_price = strip(getElementTextByTagNameNR(e,"Buy_Price"));
+        }
+        it.first_bid = strip(getElementTextByTagNameNR(e,"First_Bid"));
     	it.number_of_Bids = Integer.parseInt(getElementTextByTagNameNR(e,"Number_of_Bids"));
     	it.country = getElementTextByTagNameNR(e,"Country");
     	it.started = Item.parseDate(getElementTextByTagNameNR(e,"Started"));
@@ -260,6 +263,10 @@ public class MyParser {
     	it.description = getElementTextByTagNameNR(e,"Description");
     	Element loc = getElementByTagNameNR(e,"Location");
     	setLocationelement_attr(it,loc);
+        System.out.println(itemid+' '+getElementTextByTagNameNR(e,"Location"));
+        // if(itemid.equals("1044458000")){
+        //     System.out.println("attention");
+        // }
     	Element seller_e = getElementByTagNameNR(e,"Seller");
     	User seller = setUserlement_attr(it,seller_e,false);
     	it.sel = seller;
@@ -269,10 +276,13 @@ public class MyParser {
     }
     private static void setLocationelement_attr(Item it,Element e){
     	if(e==null)
+        {
+            System.out.println("escape location");
     		return ;
-    	String content = null;
+        }
 		String latitude = null;
 		String longitude = null;
+        String content = null;
 		org.w3c.dom.NamedNodeMap nattrib = e.getAttributes();
 		if(nattrib!=null&&nattrib.getLength()>0){
 		for(int i=0; i<nattrib.getLength();++i){
@@ -282,13 +292,20 @@ public class MyParser {
 			if(nattrib.item(i).getNodeName().equals("Longitude")){
 				longitude = nattrib.item(i).getNodeValue();
 			}
-		}
-		org.w3c.dom.NodeList nlist = e.getChildNodes();
-		if(nlist.getLength()>0){
-			content = nlist.item(0).getNodeValue();
-		}
+		  }
+        }
+		// org.w3c.dom.NodeList nlist = e.getChildNodes();
+		// if(nlist.getLength()!=0){
+		// 	content = nlist.item(0).getNodeValue();
+  //           System.out.println(content);
+		// }
+  //       else{
+  //           //System.out.println("attention");
+  //       }
+        //System.out.println(':'+typeName[e.getNodeType()] + ' ');
+        content = getElementText(e);
 		it.addLocation(latitude,longitude,content);
-		}
+        //System.out.println(latitude + longitude + cont);
     }
 
     private static User setUserlement_attr(Item it,Element e,boolean isbidder){

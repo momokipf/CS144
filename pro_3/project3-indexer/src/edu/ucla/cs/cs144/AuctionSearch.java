@@ -65,9 +65,10 @@ public class AuctionSearch implements IAuctionSearch {
 	// 	return Collections.unmodifiableMap(tmp);
 	// }
 
+	private static SimpleDateFormat xmlformat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");  //Dec-10-01 09:26:52
+	private static SimpleDateFormat sqlformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
-	
+	private final String indent = "  ";
 	public SearchResult[] basicSearch(String query, int numResultsToSkip, 
 			int numResultsToReturn) {
 		// TODO: Your code here!
@@ -210,10 +211,31 @@ public class AuctionSearch implements IAuctionSearch {
 			rs = s.executeQuery(query);
 			if(rs.next()){
 				ret.append("<ItemID=\""+itemId+"\">\n");
-				ret.append("\t<Name>"+repwithEscape(rs.getString("Name"))+"/Name>\n");
+				ret.append(printindent(height+1)+"<Name>"+repwithEscape(rs.getString("Name"))+"/Name>\n");
 				for(String category:getcategory(conn,itemId)){
-					ret.append("\t<Category>"+repwithEscape(category)+"/Category\n");
+					ret.append(printindent(height+1)+"<Category>"+repwithEscape(category)+"</Category>\n");
 				}
+				ret.append(printindent(height+1)+"<Currently>$" + Float.toString(rs.getFloat("Currently"))+"</Currently>\n");
+				if(rs.getFloat("Buy_Price")!=0.0f)
+					ret.append(printindent(height+1)+"<Buy_Price>$" + Float.toString(rs.getFloat("Buy_Price"))+"</Buy_Price>\n");
+				ret.append(printindent(height+1)+"<First_Bid>$" + Float.toString(rs.getFloat("First_Bid"))+"</First_Bid>\n");
+				ret.append(printindent(height+1)+"<Number_of_Bids>" + Integer.toString(rs.getInt("Number_of_Bids"))+"</Number_of_Bids>\n");
+				if(getBid(conn,itemId,height+1).length()!=0)
+				{
+					ret.append(printindent(height+1)+"<Bids>\n");
+					ret.append(getBid(conn,itemId,height+2));
+					ret.append(printindent(height+1)+"</Bids>\n");
+				}
+				//Location_geo_lat Location_geo_long Location_content
+				if(1)
+					ret.append(printindent(height+1)+"<Location Latitude=\""+rs.getString("Location_geo_lat") +"\" Longitude=\""+rs.getString("Location_geo_long")+ "\">"+repwithEscape(rs.getString("Location_content"))+"</Location>\n");
+				else
+
+				ret.append(printindent(height+1)+"<Country>"+rs.getString("Country")+"</Country>\n");
+				ret.append(printindent(height+1)+"<Started>"+sqlparseDate(rs.getString("Started"))+"</Started>\n");
+				ret.append(printindent(height+1)+"<Ends>"+sqlparseDate(rs.getString("Ends"))+"</Ends>\n");
+				ret.append(printindent(height+1)+"<Description>" + repwithEscape(rs.getString("Description")) + "</Description>\n");
+				ret.append(printindent(height)+"</Item>");
 			}
 
 
@@ -279,7 +301,83 @@ public class AuctionSearch implements IAuctionSearch {
 		return ret.toArray(new String[ret.size()]);
 	}
 
+	private String getBid(Connection conn,String itemId,int height)
+	throws SQLException{
+		if(conn==null)
+			return new String();
+		Statement s = conn.createStatement();
+		StringBuilder ret = new StringBuilder();
+		ResultSet rs = s.executeQuery("Select Time,UserID,Amount from Bider where ItemID="+itemId+";");
+		//System.out.println("Select Time,UserID,Amount from Bider where ItemID="+itemId);
+		while(rs.next()){
+			ret.append(printindent(height)+"<Bid>\n");
+			
+			String username = repwithEscape(rs.getString("UserID"));
+			String time = sqlparseDate(rs.getString("Time"));
+			System.out.println(time);
+			int amount = rs.getInt("Amount");
+			ret.append(getuser(conn,username,height+1,false));
+			ret.append(printindent(height+1)+"<Time>"+time+"</Time>\n");
+			ret.append(printindent(height+1)+"<Amount>$"+Integer.toString(amount)+"</AMount>\n");
+			ret.append(printindent(height)+"</Bid>\n");
 
+		}
+		return ret.toString();
+	}
+
+	public static String sqlparseDate(String time){
+
+		String ret = null;
+		try{
+			Date parsed = sqlformat.parse(time);
+			ret = xmlformat.format(parsed);
+		}
+		catch(Exception e){
+			System.out.println("ERROR: Cannot parse \"" + time + "\"");
+		}
+
+		return ret;
+	}
+
+	private String getuser(Connection conn,String username,int height,boolean isseller)
+	throws SQLException{
+		if(conn==null)
+			return new String();
+		StringBuilder ret = new StringBuilder();
+		Statement s = conn.createStatement();
+		String query = null;
+		if(isseller){
+			query = "Select * from User where UserID=\"" + username + "\"" ;
+		}
+		else{
+			query = "Select * from User where UserID= \"" + username + "\"";
+		}
+		//System.out.println(query);
+		ResultSet rs= s.executeQuery(query);
+
+		if(rs.next()){
+			int buyrating = rs.getInt("Buyrate");
+			int sellrate = rs.getInt("Sellrate");
+			if(isseller){
+				ret.append(printindent(height)+"<Seller Rating=\"" + Integer.toString(sellrate)+"\" UserID=\"" + username + "\" />\n");
+			}
+			else{
+				ret.append(printindent(height)+"<Bidder Rating=\"" + Integer.toString(sellrate)+"\" UserID=\"" + username + "\">\n");
+				ret.append(printindent(height+1)+"<Location>"+rs.getString("Location")+"</Location>\n");
+				ret.append(printindent(height+1)+"<Country>"+rs.getString("Country")+"</Country>\n");
+				ret.append(printindent(height)+"</Bidder>\n");
+			}
+		}
+		return ret.toString();
+	}
+
+	private String printindent(int height){
+		String ret = new String();
+		for(int i=0;i<height;++i){
+			ret += indent ;
+		}
+		return ret;
+	}
 	public String echo(String message) {
 		return message;
 	}

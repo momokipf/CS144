@@ -27,7 +27,7 @@ public class Item {
 
 
 	private static SimpleDateFormat xmlformat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");  //Dec-10-01 09:26:52
-	private static SimpleDateFormat sqlformat = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+	private static SimpleDateFormat sqlformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public Item(){
 		category = new ArrayList<String>(); 
@@ -87,6 +87,7 @@ public class Item {
 
 	public void addLocation(String latitude,String longitude,String c){
 		loc = new Location(latitude,longitude,c);
+		System.out.println(latitude+longitude+c);
 	}
 	
 	public void addbid(User u,String time,String amount){
@@ -96,27 +97,30 @@ public class Item {
 
 	public static String parseDate(String time){
 
+		String ret = null;
 		try{
 		Date parsed = xmlformat.parse(time);
-		time = sqlformat.format(parsed);
+		ret = sqlformat.format(parsed);
 		}
 		catch(ParseException e){
 				System.out.println("ERROR: Cannot parse \"" + time + "\"");
 			}
-		return time;
+		return ret;
 	}
 
 	public static List<String> item_strlist(Item i)
 	{
 		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(i.itemid);
+		System.out.print(i.itemid+' ');
 		ret.add(i.name);
-		ret.add((i.currently==null)?"0":i.currently);
-		ret.add((i.buy_price==null)?"0":i.buy_price);
-		ret.add((i.first_bid==null)?"0":i.first_bid);
+		ret.add((i.currently==null)?"NULL":i.currently);
+		ret.add((i.buy_price==null)?"-1":i.buy_price);
+		ret.add((i.first_bid==null)?"NULL":i.first_bid);
 		ret.add(Integer.toString(i.number_of_Bids));
 		if(i.loc!=null){
 			ret.add((i.loc.content==null)?"NULL":i.loc.content);
+			System.out.println(i.loc.content+' ');
 			for(String locinfo:i.loc.getlat_long())
 			{
 				ret.add(locinfo);
