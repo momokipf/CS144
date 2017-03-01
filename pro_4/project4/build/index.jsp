@@ -10,12 +10,6 @@
 
 <body>
 
-	<%
-	out.println("request.getServerName() = " + request.getServerName()+"<br>");
-	out.println("request.getRequestURI() = " + request.getRequestURI()+"<br>");
-	%>
-
-
 	<table align='center' border='1' cellspacing='0'>
 		<tr>
 			<th> ItemID </th>

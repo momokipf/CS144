@@ -1,15 +1,189 @@
-<!DOCTYPE html>
-<html>
 <head>
     <head>
-
-			<title>eBay Search</title>
+		<!-- <title>eBay Search</title> -->
+	<style>
+		.center{
+			margin: auto;
+			padding: 20px;
+		}
+		h1{
+			font-size: 3em;
+			font-weight: bold;
+			text-align: center;
+		}
+		img {
+    		width:100%;
+		}
+       
+	</style>
     </head>
-    <body><h1>eBay Search Web Site</h1></body>
-    <form action="http://localhost:1448/eBay/search" >
-    	Keywords:
-    	<input type="text" name="query"><br>
-    	<input type="submit" value="Submit">
+    <body onLoad="init()">
+    <div class="center">
+    	<!-- <h1>eBay Search Web Site</h1> -->
+    <h1>eBay Search Web Site</h1> 
 
 
+    <div id="search">
+        <style>
+            #searchbar{
+
+				height: 35px;
+				width: 100%;
+				border:2px solid #666666;
+			}
+			form{ margin: auto;height:300px; width:500px;}
+			.serach{
+				display: table;
+			}
+            #searchicon{
+				margin-top: 10px;
+				background-color: lightgrey;
+				height: 40px;
+				width: 25%;
+				border:2px;
+			}
+			div{ 
+                                height:100%;
+				text-align: center;
+			}
+			input[type="text"]{
+			    font-size:20px;
+			}
+            input[type="submit"]{
+                font-size:18px;
+            }
+              
+			#search_i {
+    			cursor: default;
+                //display: table;
+    			padding: 0px;
+    			display: table-row;
+			}
+                      
+        </style>
+    	<form action="http://localhost:1448/eBay/search" method="get" >
+        	<div class="search">
+        		<div id="search_i">
+	    			<input id="searchbar" type="text" name="query">
+	    		</div>
+	            <input id="searchicon" type="submit" value="Search it">
+            </div>
+        </form> 
+    </div>
+
+    <script  type="text/javascript">
+    	// document.getElementById("searchbar").addEventListener("keyup",googlesuggestion);
+    	var autoSuggest = null;
+
+    	function init(){
+    		autoSuggest = new AutoSuggestControl(document.getElementById("searchbar"),document.getElementsByTagName("search"));
+    		autoSuggest.createDropDown();
+			document.getElementById("searchbar").addEventListener("keyup",googlesuggestion);
+			//autoSuggest.createDropDown();
+		}
+
+
+    	function AutoSuggestControl(oTextbox,oProvider){
+    		this.layer = null;
+    		this.provider = oProvider;
+    		this.textbox = oTextbox;
+    		//this.init();
+    	}
+
+		AutoSuggestControl.prototype.constructor = AutoSuggestControl;
+
+    	AutoSuggestControl.prototype.update =  function(){
+    		this.provider(this.textbox,this.disUpdate);
+    	}
+
+    	AutoSuggestControl.prototype.disUpdate = function(response){
+    		// var elem = document.getElementById("suggestions");
+    		var i = 0;
+
+    		while(response.length<this.layer.childNodes.length){
+    			this.layer.removeChild(this.layer.childNodes[response.length]);
+    			// this.layer.childNodes = this.layer.childNodes.slice(0,response.length);
+    		}
+
+    		for(; i < response.length;++i){
+    			if(this.layer.childNodes!= null && i<this.layer.childNodes.length){
+    				var Node = this.layer.childNodes[i];
+    				Node.innerHTML = response[i];
+    			}
+    			else{
+    				var Node = document.createElement("div");
+    				Node.innerHTML = response[i];
+    				Node.style.width = this.textbox.offsetWidth;
+    				Node.style.height = "20px";
+    				Node.style.textAlign = "left";
+    				Node.style.display = "table-row";
+    				this.layer.appendChild(Node);
+    			}
+    		}
+    	}
+    	AutoSuggestControl.prototype.hideSuggestions = function () {
+    		this.layer.style.visibility = "hidden";
+    		while(this.layer.childNodes.length!=0){
+    			this.layer.removeChild(this.layer.firstChild);
+    			// this.layer.childNodes = this.layer.childNodes.slice(0,response.length);
+    		}
+		};
+
+		AutoSuggestControl.prototype.showSuggestions = function () {
+    		this.layer.style.visibility = "visible";
+		};
+
+		AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {
+		    for (var i=0; i < this.layer.childNodes.length; i++) {
+		        var oNode = this.layer.childNodes[i];
+		        if (oNode == oSuggestionNode) {
+		            oNode.className = "current"
+		        } else if (oNode.className == "current") {
+		            oNode.className = "";
+		        }
+		    }
+		};
+
+		AutoSuggestControl.prototype.createDropDown = function () {
+
+		    this.layer = document.createElement("div");
+		    this.layer.className = "suggestions";
+		    this.layer.style.visibility = "hidden";
+		    this.layer.style.width = "500px"; //this.provider.offsetWidth;
+            this.layer.style.display = "table";
+		    document.getElementById("search_i").appendChild(this.layer);
+
+		    //more code to come
+		};
+
+    	function googlesuggestion(callback){
+    		var typed = autoSuggest.textbox.value;
+    		if(typed==""){
+    			autoSuggest.hideSuggestions();
+    		}
+    		else{
+	    		var url = "http://"+window.location.host+"/eBay/suggest?q=" + encodeURI(typed);
+	            var request = new XMLHttpRequest();
+	    		request.open("GET",url);
+	    		request.onreadystatechange = function(){
+	    				if(request.readyState	===	4	&&	request.status	===	200){
+	    					var type = request.getResponseHeader("Conten-Type");
+
+	    					var suggestions = request.responseXML.getElementsByTagName("CompleteSuggestion");
+	    					var ret = [];
+							for(var i = 0; i < suggestions.length; i++) {
+							    var suggest = suggestions[i];
+							    var data = suggest.firstChild.getAttribute("data");
+							    ret.push(data);
+							}
+	    					autoSuggest.disUpdate(ret);
+	    					autoSuggest.showSuggestions();
+	    				}
+	    		};
+	    		request.send(null);	
+    		}
+    	}
+
+    </script>
+    </body>
 </html>

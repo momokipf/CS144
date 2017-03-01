@@ -37,8 +37,8 @@ public class ItemServlet extends HttpServlet implements Servlet {
         ServletContext context = getServletContext( );
         AuctionSearch as = new AuctionSearch();
 
-        context.log("getQueryString: " + request.getQueryString());
-    	context.log("getRequestURI: " + request.getRequestURI());
+     //    context.log("getQueryString: " + request.getQueryString());
+    	// context.log("getRequestURI: " + request.getRequestURI());
 
         String itemid = (String)request.getParameter("itemid");
 
@@ -48,11 +48,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
 
         if(item!=null){
         	request.setAttribute("item",item);
-        	context.log("none NULL pointer");
         }
-       	else{
-       		context.log("Null pointer");
-       	}
 
         request.getRequestDispatcher("/item.jsp").forward(request,response);
     }
