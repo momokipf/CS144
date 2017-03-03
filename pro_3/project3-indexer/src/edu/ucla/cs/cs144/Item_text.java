@@ -14,9 +14,6 @@ public class Item_text {
 	private String name = null;
 	private List<String> categorys = null;
 
-	// private String location = null;
-	// private String country = null;
-
 	private String description = null;
 
 
@@ -24,8 +21,6 @@ public class Item_text {
 	public Item_text(String id,String name,String des){
 		this.itemid = id;
 		this.name = name;
-		// this.location = loc;
-		// this.country = country;
 		this.categorys = new ArrayList<String>();
 		this.description = des;
 	}
@@ -47,15 +42,6 @@ public class Item_text {
 		return ret.substring(0,ret.length());
 	}
 
-	// public String getLocation(){
-	// 	return this.location;
-	// }
-
-
-	// public String getCountry(){
-	// 	return this.country;
-	// }
-
 	public String getDescription(){
 		return this.description;
 	}
@@ -72,13 +58,6 @@ public class Item_text {
 		this.categorys.add(cat);
 	}
 
-	// public void setcountry(String country){
-	// 	this.country = country;
-	// }
-
-	// public void setlocation(String loc){
-	// 	this.location =loc;
-	//}
 	public void setdescription(String des){
 		this.description=des;
 	}
@@ -92,10 +71,6 @@ public class Item_text {
 				getItem_id() +
 				" Name: "+
 				getName() +
-				//" Country: "+
-				// getCountry() +
-				// " Location: "+
-				// getLocation() + 
 				 " Description: "+
 				getDescription() ;
 				

@@ -13,6 +13,7 @@
         <pathelement location="${obj-dir}"/>
     </path>
 
+
     <target name="init">
 		<mkdir dir="${obj-dir}" />
 		<mkdir dir="${lib-dir}" />
@@ -35,4 +36,5 @@
             <classpath refid="classpath"/>
         </java>
     </target>
+
 </project>

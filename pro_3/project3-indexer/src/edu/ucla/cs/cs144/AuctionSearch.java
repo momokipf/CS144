@@ -72,7 +72,6 @@ public class AuctionSearch implements IAuctionSearch {
 	public SearchResult[] basicSearch(String query, int numResultsToSkip, 
 			int numResultsToReturn) {
 		// TODO: Your code here!
-
 		ArrayList<SearchResult> res = new ArrayList<SearchResult>(); 
 		HashSet<String> itemidset = new HashSet<String>();
 		//String[] fields = { "Name", "Category", "Description"}; 
@@ -113,6 +112,10 @@ public class AuctionSearch implements IAuctionSearch {
 
 		//return new SearchResult[0];
 	}
+
+
+
+
 
 	public SearchResult[] spatialSearch(String query, SearchRegion region,
 			int numResultsToSkip, int numResultsToReturn) {

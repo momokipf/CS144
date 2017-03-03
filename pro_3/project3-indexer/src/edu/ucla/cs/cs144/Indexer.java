@@ -47,6 +47,7 @@ public class Indexer {
 
     public void rebuildIndexes() {
 
+
         Connection conn = null;
 
         // create a connection to the database to retrieve Items from MySQL
@@ -90,11 +91,8 @@ public class Indexer {
             Item_text item_t = new Item_text(id,rs.getString("Name"),rs.getString("Description"));
             while(rs.next()&&id.equals(rs.getString("ItemID"))){
                 item_t.addCategory(rs.getString("Category"));  
-                //System.out.println(id+ ' '+rs.getString("Category")); 
             }
-            //System.out.println(id+ ' '+item_t.getCategorys());
             IndexItem_text(item_t);
-            //System.out.println("Item id:" + id + " added");
             count++;
         }
 
@@ -127,15 +125,15 @@ public class Indexer {
         Document doc = new Document();
         doc.add(new StringField("ItemID",item_t.getItem_id(),Field.Store.YES));
         doc.add(new TextField("Name",item_t.getName(),Field.Store.YES));
-        // doc.add(new StringField("Location",item_t.getLocation(),Field.Store.NO));
-        // doc.add(new StringField("Country",item_t.getCountry(),Field.Store.NO));
         doc.add(new TextField("Category",item_t.getCategorys(),Field.Store.NO));
-        //System.out.println(item_t.getCategorys());
         doc.add(new TextField("Description",item_t.getDescription(),Field.Store.NO));
         doc.add(new TextField("Content",item_t.getName()+' '+item_t.getCategorys()+' '+item_t.getDescription(),Field.Store.NO));
 
         writer.addDocument(doc);
     }
+
+
+
 
     public static void main(String args[]) {
         Indexer idx = new Indexer();

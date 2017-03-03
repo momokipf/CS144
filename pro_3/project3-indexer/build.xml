@@ -22,6 +22,10 @@
 		<delete dir="${obj-dir}" />
     </target>
 
+    <delete includeEmptyDirs="true">
+        <fileset dir="/var/lib/lucene/" includes="**/*" defaultexcludes="no"/>
+    </delete>
+
     <target name="compile" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" srcdir="${src-dir}" destdir="${obj-dir}" includes="edu/ucla/cs/cs144/*.java">
@@ -33,9 +37,8 @@
         <java classname="edu.ucla.cs.cs144.Indexer" failonerror="true" fork="yes">
             <classpath refid="classpath"/>
         </java>
-        <java classname="edu.ucla.cs.cs144.AuctionSearchTest" failonerror="true" fork="yes">
-            <classpath refid="classpath"/>
-        </java>
         
     </target>
+
+
 </project>
