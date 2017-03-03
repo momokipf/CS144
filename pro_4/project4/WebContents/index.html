@@ -42,8 +42,8 @@
 				width: 25%;
 				border:2px;
 			}
-			div{ 
-                                height:100%;
+			div.search { 
+                height:100%;
 				text-align: center;
 			}
 			input[type="text"]{
@@ -59,7 +59,14 @@
     			padding: 0px;
     			display: table-row;
 			}
-                      
+			div.current{
+
+			}
+
+			div.suggestions div.current {
+			    background-color: #3366cc;
+			    color: white;
+			}
         </style>
     	<form action="http://localhost:1448/eBay/search" method="get" >
         	<div class="search">
@@ -87,6 +94,7 @@
     		this.layer = null;
     		this.provider = oProvider;
     		this.textbox = oTextbox;
+    		this.pointer = -1;
     		//this.init();
     	}
 
@@ -133,10 +141,10 @@
     		this.layer.style.visibility = "visible";
 		};
 
-		AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {
+		AutoSuggestControl.prototype.highlightSuggestion = function () {
 		    for (var i=0; i < this.layer.childNodes.length; i++) {
 		        var oNode = this.layer.childNodes[i];
-		        if (oNode == oSuggestionNode) {
+		        if (i==this.pointer) {
 		            oNode.className = "current"
 		        } else if (oNode.className == "current") {
 		            oNode.className = "";
@@ -154,6 +162,25 @@
 		    document.getElementById("search_i").appendChild(this.layer);
 
 		    //more code to come
+		    document.getElementById("searchbar").addEventListener("keydown", function(){
+		    	var key = event.which || event.keyCode;
+	    	if(autoSuggest.layer.childNodes.length!=0){
+		    	if(key == 40){
+		    		if(autoSuggest.pointer<autoSuggest.layer.childNodes.length-1)
+		    		{
+		    			autoSuggest.pointer+=1;
+		    			autoSuggest.highlightSuggestion();
+		    		}
+		    	}
+		    	if(key ==38){
+					if(autoSuggest.pointer>0){
+		    			autoSuggest.pointer-=1;
+		    			autoSuggest.highlightSuggestion();
+		    		}
+		    	}
+		    }
+
+		    },false);
 		};
 
     	function googlesuggestion(callback){
